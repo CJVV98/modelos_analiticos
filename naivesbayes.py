@@ -139,6 +139,8 @@ for index, row in df_pruebas.iterrows():
     comment = str(row['Comentario']);
     comment_without_emojis = remove_emojis(comment)
     comment_proc = proc_text(comment_without_emojis);
+    if(len(comment_proc)==0):
+      continue
     new_row = pa.DataFrame({'Comentario': comment_proc, 'Emocion': row['Emocion']},index=[0])
     df_test = pa.concat([df_test, new_row], ignore_index=True)
 
