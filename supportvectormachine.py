@@ -111,7 +111,7 @@ def proc_text(comment):
   words_end=proc_lemmatize_and_stemming(words_four);
   return words_end;
 
-dwn_url_pruebas='/content/drive/MyDrive/ProyectoGrado/Maestria/Evaluaciones/dataset_test__55.csv'
+dwn_url_pruebas='/content/drive/MyDrive/ProyectoGrado/Maestria/Evaluaciones/dataset_test__.csv'
 df_pruebas = pa.read_csv(dwn_url_pruebas, encoding='utf-8',header=None, sep=';');
 df_pruebas.columns=["Comentario","Emocion"]
 
