@@ -126,7 +126,7 @@ def proc_text(comment):
   return words_end;
 
 #Corpus de comentarios
-dwn_url_pruebas='/content/drive/MyDrive/ProyectoGrado/Maestria/Evaluaciones/dataset_test__59.csv'
+dwn_url_pruebas='/content/drive/MyDrive/ProyectoGrado/Maestria/Evaluaciones/dataset_test__.csv'
 df_pruebas = pa.read_csv(dwn_url_pruebas, encoding='utf-8',header=None, sep=';');
 df_pruebas.columns=["Comentario","Emocion"]
 
