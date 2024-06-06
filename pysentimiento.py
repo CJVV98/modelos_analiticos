@@ -56,9 +56,9 @@ df_test_1=df_test
 
 """# Pysentimiento"""
 
-hate_speech_analyzer = create_analyzer(task="emotion", lang="es")
+emotion_analyzer = create_analyzer(task="emotion", lang="es")
 # Obtener predicciones del modelo
-predictions_ = hate_speech_analyzer.predict(df_test_1["Comentario"])
+predictions_ = emotion_analyzer.predict(df_test_1["Comentario"])
 predictions = [max(output.probas, key=output.probas.get) for output in predictions_]
 
 #Mapa de emociones de pysentimiento
