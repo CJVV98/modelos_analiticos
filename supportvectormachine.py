@@ -52,6 +52,7 @@ def proc_tokenize(lower_words):
   #Tokenizar el comentario por palabras
   tokens = word_tokenize(lower_words)
   tokens_words=[x for x in tokens if len(x) > 1]
+
   return tokens_words;
 
 def delete_stop_word(tokens_words):
@@ -59,8 +60,11 @@ def delete_stop_word(tokens_words):
   stop = set(stopwords.words('spanish'))
   # Guardar en la lista las palabras que no son stopwords
   stop.discard("no");
-  stop.discard("es");
-  stop_tokens = [w for w in tokens_words if not w in stop]
+
+  words_tokens_ = ["el", "él","yo","tu","la","que","cada","de","las","los","una","un"]
+  stop.update(words_tokens_)
+
+  stop_tokens = [w for w in tokens_words if not w.lower() in stop]
   stop_token_ = [word.strip() for word in stop_tokens]
   return stop_token_;
 
@@ -111,7 +115,7 @@ def proc_text(comment):
   words_end=proc_lemmatize_and_stemming(words_four);
   return words_end;
 
-dwn_url_pruebas='/content/drive/MyDrive/ProyectoGrado/Maestria/Evaluaciones/dataset_test__.csv'
+dwn_url_pruebas='/content/drive/MyDrive/ProyectoGrado/Maestria/Evaluaciones/dataset_test__55.csv'
 df_pruebas = pa.read_csv(dwn_url_pruebas, encoding='utf-8',header=None, sep=';');
 df_pruebas.columns=["Comentario","Emocion"]
 
@@ -131,6 +135,8 @@ df_test_1=df_test
 mapeo = {'scared': 0, 'mad': 1,'Mad': 1, 'sad': 2, 'surprise':3,'joyful':4, 'trust':5,'others':6}
 df_test_1['Emocion'] = df_test_1['Emocion'].map(mapeo)
 print(df_test_1['Emocion'])
+
+
 
 """# Modelo SVM"""
 
@@ -153,9 +159,20 @@ clf = SVC(class_weight='balanced', random_state=28)
 parameters = {'C': [0.1,1,10,100,1000],
                'gamma': [ 1e-3,1e-2,1e-1,0],
                'kernel' : ['rbf', 'linear'] }
-vectorizer = TfidfVectorizer()
+stopwords_personalizadas = []
+with open("spanish.txt", "r", encoding="utf-8") as file:
+    stopwords_personalizadas = [line.strip() for line in file]
+
+vectorizer = TfidfVectorizer(stop_words=stopwords_personalizadas)
 X_train_tfidf = vectorizer.fit_transform(X_train)
 X_test_tfidf = vectorizer.transform(X_test)
+
+tokens_ = vectorizer.get_feature_names_out()
+count_tokens = len(tokens_)
+print(count_tokens)
+print(tokens_)
+
+"""#Seleccionar Parametros para el modelo"""
 
 from sklearn.model_selection import GridSearchCV
 grid_search = GridSearchCV(clf, parameters, n_jobs=-1, cv=5)
@@ -164,6 +181,22 @@ print('The best model:\n', grid_search.best_params_)
 clf_best = grid_search.best_estimator_
 pred = clf_best.predict(X_test_tfidf)
 print(f'The accuracy is: {clf_best.score(X_test_tfidf, y_test)*100:.1f}%')
+
+"""#Contar cantidad de tokens"""
+
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+
+word_freq = dict(zip(tokens_, X_test_tfidf.sum(axis=0).A1))
+
+wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(word_freq)
+
+plt.figure(figsize=(10, 6))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis('off')
+plt.show()
+
+"""#Entrenar modelo"""
 
 # Dividir los datos en conjunto de entrenamiento y prueba
 X_train, X_test, y_train, y_test = train_test_split(df_test_1["Comentario"],df_test_1["Emocion"], test_size=0.2, random_state=42)
@@ -200,7 +233,7 @@ print(classification_report(y_test_encoded, y_pred))
 print('\nMatriz de confusión:')
 print(cm)
 
-
+"""#Matriz de confusión para validar la clasificación del modelo"""
 
 disp_emocion = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['scared', 'mad', 'sad', 'surprise','joyful', 'trust'])
 disp_emocion.plot(cmap=plt.cm.Blues)
@@ -208,3 +241,6 @@ plt.title('Matriz de Confusión para la Emoción')
 plt.xlabel('Emociones')
 plt.ylabel('Emociones')
 plt.show()
+
+
+
